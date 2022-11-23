@@ -1,0 +1,23 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE Artist(
+artist_id integer primary key AUTOINCREMENT,
+name text);
+INSERT INTO Artist VALUES(1,'dissection');
+INSERT INTO Artist VALUES(2,'entrails');
+CREATE TABLE Album(
+album_id integer primary key AUTOINCREMENT,
+artist_id integer,
+title text,
+release_date text,
+cost decimal(2,2), stock integer,
+FOREIGN KEY (artist_id) REFERENCES artist(artist_id));
+INSERT INTO Album VALUES(1,1,'storm of the lights bane','1996-10-22',12.900000000000000355,1);
+INSERT INTO Album VALUES(2,1,'the somberlain','1994-03-12',10.199999999999999289,2);
+INSERT INTO Album VALUES(3,2,'tales from the morgue','2003-12-02',8.8800000000000007815,10);
+INSERT INTO Album VALUES(4,2,'the tomb awaits','2005-07-30',10.699999999999999289,4);
+INSERT INTO Album VALUES(5,2,'raging death','2006-10-22',11.499999999999999999,5);
+DELETE FROM sqlite_sequence;
+INSERT INTO sqlite_sequence VALUES('Artist',2);
+INSERT INTO sqlite_sequence VALUES('Album',5);
+COMMIT;
