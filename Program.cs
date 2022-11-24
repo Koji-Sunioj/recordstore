@@ -21,76 +21,88 @@ namespace HelloWorld
                 {
                     ListAlbums(artists);
                     Write("\nenter an option: add (album id), remove (album id), checkout: ");
-                    try
+                    // try
+                    // {
+                    string[] response = ReadLine()!.Split(" ");
+                    int album_id;
+                    Album selected;
+                    switch (response[0].Trim().ToLower())
                     {
-                        string[] response = ReadLine()!.Split(" ");
-                        int album_id;
-                        Album selected;
-                        switch (response[0].Trim().ToLower())
-                        {
-                            case "add":
-                                album_id = int.Parse(response[1]);
-                                selected = db.Album.Where(a => a.album_id == album_id).First();
-                                if (selected.stock > 0)
+                        case "add":
+                            album_id = int.Parse(response[1]);
+                            selected = db.Album.Find(album_id)!;
+                            if (selected.stock > 0)
+                            {
+                                selected.stock--;
+                                cart.bill += selected.cost;
+                                if (CheckExisting(selected, cart))
                                 {
-                                    selected.stock--;
-                                    cart.bill += selected.cost;
-                                    if (cart.items.Any(a => a.album_id == selected.album_id))
-                                    {
-                                        cart.items.Where(w => w.album_id == selected.album_id).ToList().ForEach(s => s.amount++);
-                                    }
-                                    else
-                                    {
-                                        CartItem item = new() { album_id = selected.album_id, title = selected.title, Artist = selected.Artist, amount = 1, cost = selected.cost };
-                                        cart.items.Add(item);
-                                    }
-
-                                    //db.SaveChanges();
+                                    cart.items.Where(w => w.album_id == selected.album_id).ToList().ForEach(s => s.amount++);
                                 }
                                 else
                                 {
-                                    WriteLine("\nNo stock left for that record!");
+                                    CartItem item = new() { album_id = selected.album_id, title = selected.title, Artist = selected.Artist, amount = 1, cost = selected.cost };
+                                    cart.items.Add(item);
                                 }
 
-                                break;
-                            case "remove":
-                                album_id = int.Parse(response[1]);
-                                selected = db.Album.Where(a => a.album_id == album_id).First();
-                                if (cart.items.Any(a => a.album_id == selected.album_id))
+                                //db.SaveChanges();
+                            }
+                            else
+                            {
+                                WriteLine("\nNo stock left for that record!");
+                            }
+
+                            break;
+                        case "remove":
+                            album_id = int.Parse(response[1]);
+                            selected = db.Album.Find(album_id)!;
+                            if (CheckExisting(selected, cart))
+                            {
+                                selected.stock++;
+                                cart.bill -= selected.cost;
+                                CartItem target = cart.items.Where(w => w.album_id == selected.album_id).First();
+                                target.amount--;
+                                if (target.amount == 0)
                                 {
-                                    selected.stock++;
-                                    cart.bill -= selected.cost;
-                                    CartItem target = cart.items.Where(w => w.album_id == selected.album_id).First();
-                                    target.amount--;
-                                    if (target.amount == 0)
-                                    {
-                                        cart.items.Remove(target);
-                                    }
+                                    cart.items.Remove(target);
                                 }
-                                else
-                                {
-                                    WriteLine("... that record doesn't exist in your cart...");
-                                }
-                                // var something = cart.items.Where(a => a.album_id == album_id).First();
-                                // cart.items.Remove(something);
-                                break;
-                            case "checkout":
+                            }
+                            else
+                            {
+                                WriteLine("... that record doesn't exist in your cart...");
+                            }
+                            break;
+                        case "checkout":
+                            bool checkingout = true;
+                            while (checkingout)
+                            {
+                                Write("\nwhat's your email address? ");
+                                string email = ReadLine()!;
+                                EntityEntry<Invoice> something = db.Invoice.Add(new() { email = email });
                                 db.SaveChanges();
-                                break;
+                                foreach (CartItem item in cart.items)
+                                {
+                                    db.InvoiceItems.Add(new() { album_id = item.album_id, amount = item.amount, invoice_id = something.Entity.invoice_id });
+                                }
+                                db.SaveChanges();
+                                checkingout = false;
+                            }
+                            cart.Init();
+                            WriteLine("\n... changes saved...\n");
+                            break;
 
-                            default:
-                                WriteLine("huh");
-                                break;
-                        }
-                        ShowCart(cart);
+                        default:
+                            WriteLine("huh");
+                            break;
                     }
-
-                    catch
-                    {
-                        WriteLine("huh?");
-                    }
+                    ShowCart(cart);
                 }
             }
+        }
+
+        static bool CheckExisting(Album selected, Cart cart)
+        {
+            return cart.items.Any(a => a.album_id == selected.album_id);
         }
 
         static void ShowCart(Cart cart)

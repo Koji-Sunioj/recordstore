@@ -8,6 +8,11 @@ namespace TheCart
 
         public decimal bill { get; set; } = 0;
 
+        public void Init()
+        {
+            items = new();
+            bill = 0;
+        }
     }
 
     public class CartItem : Album

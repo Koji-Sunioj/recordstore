@@ -6,6 +6,11 @@ public class StoreContext : DbContext
     public DbSet<Artist> Artist { get; set; }
     public DbSet<Album> Album { get; set; }
 
+    public DbSet<Invoice> Invoice { get; set; }
+
+    public DbSet<InvoiceItems> InvoiceItems { get; set; }
+
+
     public string DbPath { get; }
 
     public StoreContext()
@@ -41,4 +46,29 @@ public class Album
 
     [ForeignKey("artist_id")]
     public Artist? Artist { get; set; }
+}
+
+public class Invoice
+{
+    [Key]
+    public int invoice_id { get; set; }
+    public string? email { get; set; }
+
+    public DateTime time_stamp { get; }
+
+
+}
+
+[PrimaryKey(nameof(invoice_id), nameof(album_id))]
+
+public class InvoiceItems
+{
+
+    [ForeignKey("invoice_id")]
+    public int invoice_id { get; set; }
+
+    public int album_id { get; set; }
+
+    public int amount { get; set; }
+
 }

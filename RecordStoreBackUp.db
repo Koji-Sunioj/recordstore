@@ -20,8 +20,7 @@ INSERT INTO Album VALUES(5,2,'raging death','2006-10-22',11.499999999999999999,5
 CREATE TABLE Invoice(
     invoice_id integer primary key autoincrement,
     email text,
-    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
-INSERT INTO Invoice VALUES(1,'koji.gabriel218@gmail.com','2022-11-24 12:12:05');
+    time_stamp DATETIME DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE InvoiceItems(
     album_id integer,
     invoice_id integer,
@@ -30,9 +29,8 @@ CREATE TABLE InvoiceItems(
     foreign key (album_id) references Album(album_id),
     foreign key (invoice_id) references Invoice(invoice_id)
 );
-INSERT INTO InvoiceItems VALUES(1,1,1);
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('Artist',2);
 INSERT INTO sqlite_sequence VALUES('Album',5);
-INSERT INTO sqlite_sequence VALUES('Invoice',1);
+INSERT INTO sqlite_sequence VALUES('Invoice',9);
 COMMIT;
